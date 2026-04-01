@@ -17,9 +17,10 @@ setTimeout(() => {messageBox.style.display = 'none';}, 4000);
 function parseJwt(token) {
     try {
         const base64Url = token.split('.')[1];
+       
         const base64 = base64Url.replace(/-/g, '+').replace(/_/g,'/');
-        const jsonPayload= decodeURIComponent(window.atob(base64).split('').map(function(c){
-            return'%' + ('00' + c.charCodeAt(0).toString(16).slice(-2));
+        const jsonPayload = decodeURIComponent(window.atob(base64).split('').map(function(c){
+            return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
         }).join(''));
       return JSON.parse(jsonPayload);
         
@@ -85,8 +86,15 @@ cursoForm.addEventListener("submit", async (event)=>{
         if (resposta.status !==204) {
             dados= await resposta.json();
         }
-        //paramos por aqui!!
+        if(!resposta.ok) throw new Error(dados.menssagem || "Erro ao cadastrar o curso.");
+        mostrarMenssagem("Curso cadastrado com sucesso!", "sucess");
+        cursoForm.reset();
+
     } catch (error) {
-        
+        mostrarMenssagem(error.message, "error");
+        //voltar aqui
+    } finally{
+        submitCurso.disabled = false;
+        submitCurso.textContent= "Salvar curso";
     }
-})
+});
